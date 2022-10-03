@@ -1,0 +1,50 @@
+# An example of ClusterConfig object using Managed Nodes
+---
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: eshop-eks-cluster
+  region: us-east-1
+
+managedNodeGroups:
+  - name: eshop-ng-public
+    instanceType: t3.large
+    minSize: 2
+    desiredCapacity: 3
+    maxSize: 4
+    # availabilityZones: ["us-east-1a", "us-east-1b","us-east-1c"]
+    volumeSize: 50
+    updateConfig:
+      maxUnavailable: 3 # or `maxUnavailablePercentage: 75` to specify maxUnavailable as a percentage of total nodes
+    ssh:
+      allow: true
+      publicKeyPath:  ~/.ssh/eshop_eks_key.pub
+      # new feature for restricting SSH access to certain AWS security group IDs
+      # sourceSecurityGroupIds: ["sg-00241fbb12c607007"]
+    labels: {role: worker}
+    # Note: unmanaged nodegroups (`nodeGroups` field) use a different structure (map[string]string) to express taints
+    # taints:
+    # - key: eshop-noschedule-pods
+    #   value: yes
+    #   effect: NoSchedule
+    # - key: eshop-noexecute
+    #   effect: NoExecute
+    tags:
+      nodegroup-role: worker
+    iam:
+      withAddonPolicies:
+        externalDNS: true
+        certManager: true
+
+  - name: managed-ng-private
+    instanceType: t3.large
+    # launch nodegroup in private subnets
+    privateNetworking: true
+    minSize: 2
+    desiredCapacity: 3
+    maxSize: 4
+    #availabilityZones: ["us-east-1a", "us-east-1b","us-east-1c"]
+    volumeSize: 50
+    updateConfig:
+      maxUnavailable: 3 # or `maxUnavailablePercentage: 75` to specify maxUnavailable as a percentage of total nodes
