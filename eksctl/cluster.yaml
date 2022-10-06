@@ -13,7 +13,6 @@ managedNodeGroups:
     minSize: 2
     desiredCapacity: 3
     maxSize: 4
-    # availabilityZones: ["us-east-1a", "us-east-1b","us-east-1c"]
     volumeSize: 50
     updateConfig:
       maxUnavailable: 3 # or `maxUnavailablePercentage: 75` to specify maxUnavailable as a percentage of total nodes
@@ -22,7 +21,7 @@ managedNodeGroups:
       publicKeyPath:  ~/.ssh/eshop_eks_key.pub
       # new feature for restricting SSH access to certain AWS security group IDs
       # sourceSecurityGroupIds: ["sg-00241fbb12c607007"]
-    labels: {role: worker}
+    labels: {zone: public}
     # Note: unmanaged nodegroups (`nodeGroups` field) use a different structure (map[string]string) to express taints
     # taints:
     # - key: eshop-noschedule-pods
@@ -33,18 +32,32 @@ managedNodeGroups:
     tags:
       nodegroup-role: worker
     iam:
-      withAddonPolicies:
-        externalDNS: true
-        certManager: true
+      attachPolicy:
+        Version: "2012-10-17"
+        Statement:
+        - Effect: Allow
+          Action:
+          - 's3:*'
+          Resource: 'arn:aws:s3:::setnext-eshop/*'
 
-  - name: managed-ng-private
+  - name: eshop-ng-private
     instanceType: t3.large
     # launch nodegroup in private subnets
     privateNetworking: true
-    minSize: 2
-    desiredCapacity: 3
-    maxSize: 4
-    #availabilityZones: ["us-east-1a", "us-east-1b","us-east-1c"]
+    minSize: 1
+    desiredCapacity: 1
+    maxSize: 3
     volumeSize: 50
     updateConfig:
       maxUnavailable: 3 # or `maxUnavailablePercentage: 75` to specify maxUnavailable as a percentage of total nodes
+    labels: {zone: secured}
+    tags:
+      nodegroup-role: worker
+    iam:
+      attachPolicy:
+        Version: "2012-10-17"
+        Statement:
+        - Effect: Allow
+          Action:
+          - 's3:*'
+          Resource: 'arn:aws:s3:::setnext-eshop/*'
