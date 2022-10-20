@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.26.1 (a9d05d509)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: strapi
+  name: eshop-cms
+  namespace: web
+  
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: strapi
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.26.1 (a9d05d509)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: strapi
+    spec:
+      containers:
+        - env:
+            - name: CORS_ORIGIN
+              value: "*"
+            - name: DATABASE_CLIENT
+              value: mysql
+            - name: DATABASE_HOST
+              value: mysql.db.svc.cluster.local
+            - name: DATABASE_NAME
+              value: strapi
+            - name: DATABASE_PASSWORD
+              value: strapi
+            - name: DATABASE_PORT
+              value: "3306"
+            - name: DATABASE_SSL
+              value: "false"
+            - name: DATABASE_USERNAME
+              value: strapi
+          image: localhost:5001/eshop-cms-arm64
+          imagePullPolicy: Always
+          name: eshop-cms
+          ports:
+            - containerPort: 1337
+          resources: {}
+      restartPolicy: Always

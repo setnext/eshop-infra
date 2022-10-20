@@ -44,8 +44,8 @@ managedNodeGroups:
     instanceType: t3.large
     # launch nodegroup in private subnets
     privateNetworking: true
-    minSize: 1
-    desiredCapacity: 1
+    minSize: 0
+    desiredCapacity: 0
     maxSize: 3
     volumeSize: 50
     updateConfig:

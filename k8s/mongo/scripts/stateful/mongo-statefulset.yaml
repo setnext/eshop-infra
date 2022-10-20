@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongo
+spec:
+  serviceName: "mongo"
+  selector:
+    matchLabels:
+      role: mongo 
+      environment: test
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        role: mongo
+        environment: test
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: mongo
+          image: mongo:4.0.8
+          command:
+            - mongod
+            - "--replSet"
+            - rs0
+#            - "--smallfiles"
+            - "--noprealloc"
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: mongo-persistent-storage
+              mountPath: /data/db
+            - name: mongodb-configmap
+              mountPath: /config
+              readOnly: true
+            - name: mongo-creds
+              mountPath: /etc/mongo-creds
+            - name: mongodb-scripts
+              mountPath: /docker-entrypoint-initdb.d
+          env:
+            - name: MONGO_INITDB_DATABASE
+              value: mynewdb
+            - name: MONGO_NON_ROOT_USERNAME
+              value: nithya
+            - name: MONGO_NON_ROOT_PASSWORD
+              value: test321
+            - name: MONGO_INITDB_ROOT_USERNAME_FILE
+              value: /etc/mongo-creds/admin/MONGO_INITDB_ROOT_USERNAME
+            - name: MONGO_INITDB_ROOT_PASSWORD_FILE
+              value: /etc/mongo-creds/admin/MONGO_INITDB_ROOT_PASSWORD
+        - name: mongo-sidecar
+          image: cvallance/mongo-k8s-sidecar
+          env:
+            - name: MONGO_SIDECAR_POD_LABELS
+              value: "role=mongo,environment=test"
+      volumes:
+      - name: mongo-creds
+        secret:
+          secretName: mongodb-secret
+          items:
+          - key: MONGO_INITDB_ROOT_USERNAME
+            path: admin/MONGO_INITDB_ROOT_USERNAME
+            mode: 0777
+          - key: MONGO_INITDB_ROOT_PASSWORD
+            path: admin/MONGO_INITDB_ROOT_PASSWORD
+            mode: 0777
+          - key: MONGODB_USERNAME
+            path: MONGODB_USERNAME
+            mode: 0777
+          - key: MONGODB_PASSWORD
+            path: MONGODB_PASSWORD
+            mode: 0777
+          - key: MONGODB_USERS_LIST
+            path: MONGODB_USERS_LIST
+            mode: 0777
+      - name: mongodb-scripts
+        configMap:
+          name: mongodb-init
+          items:
+          - key: users.sh
+            path: users.sh
+          defaultMode: 0777
+      - name: mongo-persistent-storage
+        persistentVolumeClaim:
+          claimName: mongo-data-pvc
+      - name: mongodb-configmap
+        configMap:
+          name: mongodb-configmap
+          items:
+          - key: mongo.conf
+            path: mongo.conf

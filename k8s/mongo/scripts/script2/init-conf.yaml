@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongodb-init
+data:
+  users.sh: |
+    #!/bin/bash
+    cat /etc/mongo-creds/admin/MONGO_INITDB_ROOT_USERNAME
+    set -e
+
+    mongo <<EOF
+    const rootUser = cat('/etc/mongo-creds/admin/MONGO_INITDB_ROOT_USERNAME');
+    const rootPass = cat('/etc/mongo-creds/admin/MONGO_INITDB_ROOT_PASSWORD');
+    const adminDb = db.getSiblingDB('admin');
+    adminDb.auth(rootUser.trim(),rootPass.trim());
+    print(rootUser);
+    print(rootPass);
+    use mynewdb;
+    db.createUser({ user: 'nithya', pwd: 'test321', roles: [{ role: 'readWrite', db: 'mynewdb' }]});
+    EOF
