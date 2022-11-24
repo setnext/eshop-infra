@@ -1,0 +1,14 @@
+pipeline {
+	agent none
+  stages {
+    stage('Checkout eshop project') {
+        steps {
+            git branch: 'main',
+                credentialsId: '04b7fff3-441b-491a-9c6d-1654a7fd0b77',
+                url: 'https://github.com/setnext/eshop-infra.git'
+
+            sh "ls -lat"
+        }
+    }
+  
+  }
