@@ -9,6 +9,7 @@ pipeline {
 
         sh "ls -lat"
       }
+    }
       stage('Checkout CI/Infra project') {
         steps {
           git branch: 'main',
@@ -19,6 +20,4 @@ pipeline {
         }
       }
     }
-  }
-
   }
