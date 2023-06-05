@@ -1,0 +1,33 @@
+apiVersion: mongodbcommunity.mongodb.com/v1
+kind: MongoDBCommunity
+metadata:
+  name: setnext-mongodb
+  namespace: mongodb
+spec:
+  members: 3
+  type: ReplicaSet
+  version: "4.4.6"
+  security:
+    authentication:
+      modes: ["SCRAM"]
+  users:
+    - name: setnext-admin
+      db: admin
+      passwordSecretRef:
+        name: setnext-admin-password
+      roles:
+        - name: clusterAdmin
+          db: admin
+        - name: userAdminAnyDatabase
+          db: admin
+        - name: root
+          db: admin
+      scramCredentialsSecretName: admin-scram
+    - name: setnext-user
+      db: eshop
+      passwordSecretRef: 
+        name: setnext-user-password
+      roles:
+        - name: readWrite
+          db: eshop
+      scramCredentialsSecretName: user-scram

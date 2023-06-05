@@ -1,0 +1,36 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+runtimeConfig:
+  "api/alpha": "false"
+networking:
+  ipFamily: dual
+  podSubnet: "10.244.0.0/16"
+  serviceSubnet: "10.96.0.0/12"
+nodes:
+- role: control-plane
+  extraMounts:
+  - hostPath: /Users/nbabu/fileshare
+    containerPath: /fileshare
+    readOnly: true
+  extraPortMappings:
+  - containerPort: 30950
+    hostPort: 8050
+- role: worker
+  extraMounts:
+  - hostPath: /Users/nbabu/fileshare
+    containerPath: /fileshare
+    readOnly: true
+- role: worker
+  extraMounts:
+  - hostPath: /Users/nbabu/fileshare
+    containerPath: /fileshare
+    readOnly: true
+- role: worker
+  extraMounts:
+  - hostPath: /Users/nbabu/fileshare
+    containerPath: /fileshare
+    readOnly: true
+containerdConfigPatches:
+- |-
+  [plugins."io.containerd.grpc.v1.cri".registry.mirrors."localhost:${reg_port}"]
+    endpoint = ["http://${reg_name}:5000"]

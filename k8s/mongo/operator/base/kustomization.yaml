@@ -1,0 +1,8 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: mongodb
+resources:
+- deploy/clusterwide
+- config/rbac
+- config/crd/bases/mongodbcommunity.mongodb.com_mongodbcommunity.yaml
+- config/manager/manager.yaml
