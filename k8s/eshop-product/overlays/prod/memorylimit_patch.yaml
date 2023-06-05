@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eshop-product-api-deployment
+  labels:
+    app: eshop-product-api
+spec:
+  replicas: 2
+  template:
+    spec:
+      containers:
+        - name: eshop-product-api
+          resources:
+            limits:
+              memory: 1250Mi
+            requests:
+              memory: 1250Mi
+          env:
+          - name: MEM_TOTAL_MB
+            valueFrom:
+              resourceFieldRef:
+                resource: limits.memory

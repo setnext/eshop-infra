@@ -1,0 +1,63 @@
+# An example of ClusterConfig object using Managed Nodes
+---
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: eshop-eks-cluster
+  region: us-east-1
+
+managedNodeGroups:
+  - name: eshop-ng-public
+    instanceType: t3.large
+    minSize: 2
+    desiredCapacity: 3
+    maxSize: 4
+    volumeSize: 50
+    updateConfig:
+      maxUnavailable: 3 # or `maxUnavailablePercentage: 75` to specify maxUnavailable as a percentage of total nodes
+    ssh:
+      allow: true
+      publicKeyPath:  ~/.ssh/eshop_eks_key.pub
+      # new feature for restricting SSH access to certain AWS security group IDs
+      # sourceSecurityGroupIds: ["sg-00241fbb12c607007"]
+    labels: {zone: public}
+    # Note: unmanaged nodegroups (`nodeGroups` field) use a different structure (map[string]string) to express taints
+    # taints:
+    # - key: eshop-noschedule-pods
+    #   value: yes
+    #   effect: NoSchedule
+    # - key: eshop-noexecute
+    #   effect: NoExecute
+    tags:
+      nodegroup-role: worker
+    iam:
+      attachPolicy:
+        Version: "2012-10-17"
+        Statement:
+        - Effect: Allow
+          Action:
+          - 's3:*'
+          Resource: 'arn:aws:s3:::setnext-eshop/*'
+
+  - name: eshop-ng-private
+    instanceType: t3.large
+    # launch nodegroup in private subnets
+    privateNetworking: true
+    minSize: 0
+    desiredCapacity: 0
+    maxSize: 3
+    volumeSize: 50
+    updateConfig:
+      maxUnavailable: 3 # or `maxUnavailablePercentage: 75` to specify maxUnavailable as a percentage of total nodes
+    labels: {zone: secured}
+    tags:
+      nodegroup-role: worker
+    iam:
+      attachPolicy:
+        Version: "2012-10-17"
+        Statement:
+        - Effect: Allow
+          Action:
+          - 's3:*'
+          Resource: 'arn:aws:s3:::setnext-eshop/*'

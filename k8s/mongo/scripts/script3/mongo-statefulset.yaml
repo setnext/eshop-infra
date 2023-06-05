@@ -8,7 +8,7 @@ spec:
     matchLabels:
       role: mongo 
       environment: test
-  replicas: 1
+  replicas: 3
   template:
     metadata:
       labels:
@@ -17,7 +17,7 @@ spec:
     spec:
       terminationGracePeriodSeconds: 10
       containers:
-        - name: mongo
+        - name: mongodb
           image: mongo:4.0.8
           command:
             - mongod
@@ -50,6 +50,12 @@ spec:
               value: /etc/mongo-creds/admin/MONGO_INITDB_ROOT_USERNAME
             - name: MONGO_INITDB_ROOT_PASSWORD_FILE
               value: /etc/mongo-creds/admin/MONGO_INITDB_ROOT_PASSWORD
+        - name: mongo-sidecar
+          image: cvallance/mongo-k8s-sidecar
+          env:
+            - name: MONGO_SIDECAR_POD_LABELS
+              value: "role=mongo,environment=test"
+      serviceAccountName: podview
       volumes:
       - name: mongo-creds
         secret:
@@ -77,12 +83,18 @@ spec:
           - key: users.sh
             path: users.sh
           defaultMode: 0777
-      - name: mongo-persistent-storage
-        persistentVolumeClaim:
-          claimName: mongo-data-pvc
       - name: mongodb-configmap
         configMap:
           name: mongodb-configmap
           items:
           - key: mongo.conf
             path: mongo.conf
+  volumeClaimTemplates:
+  - metadata:
+      name: mongo-persistent-storage
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: "local-path"
+      resources:
+        requests:
+          storage: 1Gi

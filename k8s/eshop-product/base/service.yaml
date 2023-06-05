@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: eshop-product-service
+  labels:
+    app: eshop-product-service
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      name: "80"
+      targetPort: 8080
+      nodePort: 30000
+  selector:
+    app: eshop-product-api

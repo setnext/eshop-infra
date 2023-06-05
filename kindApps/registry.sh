@@ -6,7 +6,7 @@ reg_name='kind-registry'
 reg_port='5001'
 if [ "$(docker inspect -f '{{.State.Running}}' "${reg_name}" 2>/dev/null || true)" != 'true' ]; then
   docker run \
-    -d  --restart=always -p "127.0.0.1:${reg_port}:5000" --name "${reg_name}" \
+    -d  --restart=always -p "127.0.0.1:${reg_port}:5000" --name "${reg_name}" --net=kind \
     registry:2
 fi
 
@@ -14,20 +14,36 @@ fi
 cat <<EOF | kind create cluster --config=-
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
+runtimeConfig:
+  "api/alpha": "false"
+networking:
+  ipFamily: dual
+  podSubnet: "10.244.0.0/16"
+  serviceSubnet: "10.96.0.0/12"
 nodes:
 - role: control-plane
+  extraMounts:
+  - hostPath: /Users/nbabu/fileshare
+    containerPath: /fileshare
+    readOnly: true
   extraPortMappings:
-  - containerPort: 80
-    hostPort: 80
-    # optional: set the bind address on the host
-    # 0.0.0.0 is the current default
-    listenAddress: "127.0.0.1"
-    # optional: set the protocol to one of TCP, UDP, SCTP.
-    # TCP is the default
-    protocol: TCP
+  - containerPort: 30950
+    hostPort: 8050
 - role: worker
+  extraMounts:
+  - hostPath: /Users/nbabu/fileshare
+    containerPath: /fileshare
+    readOnly: true
 - role: worker
+  extraMounts:
+  - hostPath: /Users/nbabu/fileshare
+    containerPath: /fileshare
+    readOnly: true
 - role: worker
+  extraMounts:
+  - hostPath: /Users/nbabu/fileshare
+    containerPath: /fileshare
+    readOnly: true
 containerdConfigPatches:
 - |-
   [plugins."io.containerd.grpc.v1.cri".registry.mirrors."localhost:${reg_port}"]
@@ -39,3 +55,17 @@ if [ "$(docker inspect -f='{{json .NetworkSettings.Networks.kind}}' "${reg_name}
   docker network connect "kind" "${reg_name}"
 fi
 
+# Document the local registry
+# https://github.com/kubernetes/enhancements/tree/master/keps/sig-cluster-lifecycle/generic/1755-communicating-a-local-registry
+
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: local-registry-hosting
+  namespace: kube-public
+data:
+  localRegistryHosting.v1: |
+    host: "localhost:${reg_port}"
+    help: "https://kind.sigs.k8s.io/docs/user/local-registry/"
+EOF

@@ -1,0 +1,3 @@
+john:john321:read,dbAdmin
+nithya:nithya321:readWrite,dbAdmin,dbOwner,userAdmin
+deepa:deepa321:readWrite

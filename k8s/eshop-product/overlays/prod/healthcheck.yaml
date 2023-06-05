@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eshop-product-api-deployment
+  labels:
+    app: eshop-product-api
+spec:
+  replicas: 2
+  template:
+    spec:
+      containers:
+        - name: eshop-product-api
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 3
+          readinessProbe:
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            httpGet:
+              path: /actuator/info
+              port: 8080

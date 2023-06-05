@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: eshop-product-api-configmap
+data:
+  application.properties: |
+    management.endpoints.web.exposure.include=health,metrics
+    springdoc.swagger-ui.path=/swagger-ui.html
+    logging.level.org.springframework=error
+    spring.data.mongodb.uri=mongodb://prod:27017/?directConnection=true
+    spring.data.mongodb.database=eshop

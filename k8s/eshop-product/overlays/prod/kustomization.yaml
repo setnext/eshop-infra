@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namePrefix: production-
+resources:
+- ../../base
+patches:
+- path: patch-config.yaml
+  target:
+    kind: ConfigMap
+    name: eshop-product-api-configmap
+- path: memorylimit_patch.yaml
+  target:
+    group: apps
+    kind: Deployment
+    name: eshop-product-api-deployment
+    version: v1
+- path: healthcheck.yaml
+  target:
+    group: apps
+    kind: Deployment
+    name: eshop-product-api-deployment
+    version: v1

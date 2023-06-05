@@ -64,7 +64,7 @@ spec:
       - args:
         - -o
         - /tmp/data/init.sql
-        - https://setnext-eshop.s3.amazonaws.com/strapi/mysql_backup/mysqlbackup.sql
+        - https://setnext-eshop.s3.amazonaws.com/strapi/mysql_backup/strapi_backup_31_jan_2023.sql
         image: appropriate/curl
         name: init-script-downloader
         volumeMounts:

@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eshop-product-api-deployment
+  labels:
+    app: eshop-product-api
+spec:
+  selector:
+    matchLabels:
+      app: eshop-product-api
+  template:
+    metadata:
+      labels:
+        app: eshop-product-api
+    spec:
+      containers:
+        - name: eshop-product-api
+          image: setnext/eshop-product:v1
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: app-config
+              mountPath: /opt/app/config/
+      volumes:
+        - name: "app-config"
+          configMap:
+            name: "eshop-product-api-configmap"

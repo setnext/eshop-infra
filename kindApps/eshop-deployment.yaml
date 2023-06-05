@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: eshop-standalone
+  name: eshop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eshop-standalone
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: eshop-standalone
+    spec:
+      containers:
+      - name: eshop
+        image: localhost:5000/setnext-nginx
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+      restartPolicy: Always
