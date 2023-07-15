@@ -8,24 +8,14 @@ metadata:
   region: us-east-1
 
 managedNodeGroups:
-  - name: eshop-ng-private
+  - name: eshop-ng-public
     instanceType: t3.large
-    # launch nodegroup in private subnets
-    privateNetworking: true
     minSize: 3
     desiredCapacity: 3
     maxSize: 3
-    volumeSize: 50
+    volumeSize: 10
     updateConfig:
       maxUnavailable: 3 # or `maxUnavailablePercentage: 75` to specify maxUnavailable as a percentage of total nodes
-    labels: {zone: secured}
+    labels: {zone: public}
     tags:
       nodegroup-role: worker
-    iam:
-      attachPolicy:
-        Version: "2012-10-17"
-        Statement:
-        - Effect: Allow
-          Action:
-          - 's3:*'
-          Resource: 'arn:aws:s3:::setnext-eshop/*'

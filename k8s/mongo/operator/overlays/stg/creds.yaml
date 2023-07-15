@@ -1,0 +1,17 @@
+apiVersion: v1 
+kind: Secret 
+metadata: 
+  name: setnext-admin-password 
+  namespace: mongodb 
+type: Opaque 
+stringData: 
+  password: setnext@@@321 
+--- 
+apiVersion: v1 
+kind: Secret 
+metadata: 
+  name: setnext-user-password 
+  namespace: mongodb 
+type: Opaque 
+stringData: 
+  password: setnext@321
